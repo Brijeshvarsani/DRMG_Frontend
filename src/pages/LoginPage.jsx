@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API from "../services/api";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("https://drmg-backend.onrender.com/api/login", {
+      const { data } = await API.post("/api/login", {
         email,
         password,
       });

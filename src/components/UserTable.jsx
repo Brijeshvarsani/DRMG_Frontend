@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API from "../services/api";
 
 function UserTable({ currentUserId }) {
   const [users, setUsers] = useState([]);
@@ -19,7 +20,7 @@ function UserTable({ currentUserId }) {
   }, []);
 
   const fetchUsers = () => {
-    axios.get("https://drmg-backend.onrender.com/api/users", {
+    API.get("/users", {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => setUsers(res.data));
   };
@@ -33,14 +34,14 @@ function UserTable({ currentUserId }) {
     const updateData = { email, username, role };
     if (password.trim() !== "") updateData.password = password;
 
-    axios.put(`https://drmg-backend.onrender.com/api/users/${id}`, updateData, {
+    API.put(`/users/${id}`, updateData, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => fetchUsers());
   };
 
   const deactivateUser = (id) => {
     if (window.confirm("Are you sure you want to deactivate this user?")) {
-      axios.delete(`https://drmg-backend.onrender.com/api/users/${id}`, {
+      API.delete(`/api/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(() => fetchUsers());
     }
@@ -57,7 +58,7 @@ function UserTable({ currentUserId }) {
       alert("All fields required!");
       return;
     }
-    axios.post("https://drmg-backend.onrender.com/api/users", newUser, {
+    API.post("/users", newUser, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(() => {

@@ -49,8 +49,8 @@ function DashboardPage() {
   useEffect(() => {
     if (!token) return navigate("/");
 
-    axios
-      .get("http://localhost:5000/api/profile", {
+    API
+      .get("/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUser(res.data.user))
