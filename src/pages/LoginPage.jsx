@@ -10,7 +10,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5000/api/login", {
+      const { data } = await axios.post("https://drmg-backend.onrender.com/api/login", {
         email,
         password,
       });
