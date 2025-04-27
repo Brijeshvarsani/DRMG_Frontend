@@ -1,9 +1,10 @@
 import { generateInvoicePDF } from "../utils/pdfUtils";
+import API from "./api";
 
 // Fetch order and customer info using the orderId, then call PDF utils
 export async function fetchOrderAndGeneratePDF(orderId) {
   // Fetch order + customer info and rows from backend
-  const response = await fetch(`http://localhost:5000/api/orders/${orderId}`);
+  const response = await API.get(`/orders/${orderId}`);
   if (!response.ok) throw new Error("Failed to fetch order details");
 
   const data = await response.json();
