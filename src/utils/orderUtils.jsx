@@ -24,27 +24,46 @@ export const handleSizeChange = (e, index, selectedSizes, selectedTypes, rates, 
   setRates(newRates);
 };
 
-export const handleQuantityChange = (e, index, quantities, printOnly, setQuantities, setCirculations) => {
+export const handleQuantityChange = (
+  e,
+  index,
+  quantities,
+  printOnly,
+  setQuantities,
+  setCirculations
+) => {
   const value = e.target.value;
   const newQuantities = [...quantities];
   newQuantities[index] = value;
   setQuantities(newQuantities);
 
-  const currentPrintOnly = parseInt(printOnly[index]) || 0;
-  const newCirculations = [...quantities];
-  newCirculations[index] = Math.max((parseInt(value) || 0) - currentPrintOnly, 0);
-  setCirculations(newCirculations);
+  const updatedCirculations = newQuantities.map((qty, i) => {
+    const q = parseInt(qty) || 0;
+    const po = parseInt(printOnly[i]) || 0;
+    return String(Math.max(q - po, 0));
+  });
+  setCirculations(updatedCirculations);
 };
 
-export const handlePrintOnlyChange = (e, index, quantities, printOnly, setPrintOnly, setCirculations) => {
-  const quantity = parseInt(quantities[index]) || 0;
-  const printVal = Math.min(parseInt(e.target.value) || 0, quantity);
+export const handlePrintOnlyChange = (
+  e,
+  index,
+  quantities,
+  printOnly,
+  setPrintOnly,
+  setCirculations
+) => {
+  const value = e.target.value;
   const newPrintOnly = [...printOnly];
-  const newCirculations = [...quantities];
-  newPrintOnly[index] = printVal;
-  newCirculations[index] = quantity - printVal;
+  newPrintOnly[index] = value;
   setPrintOnly(newPrintOnly);
-  setCirculations(newCirculations);
+
+  const updatedCirculations = quantities.map((qty, i) => {
+    const q = parseInt(qty) || 0;
+    const po = parseInt(newPrintOnly[i]) || 0;
+    return String(Math.max(q - po, 0));
+  });
+  setCirculations(updatedCirculations);
 };
 
 export const generateSubmissionData = (
