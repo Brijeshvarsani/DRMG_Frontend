@@ -94,7 +94,7 @@ export const generateSubmissionData = (
   }).filter(Boolean);
 };
 
-export function calculateTotals(months, selectedTypes, selectedSizes, quantities, rates, printOnly, printOnlyRates, circulations) {
+export function calculateTotals(months, selectedTypes, selectedSizes, quantities, rates, printOnly, printOnlyRates, circulations, taxPercentage) {
   let subtotal = 0;
   for (let i = 0; i < months.length; i++) {
     if (!selectedTypes[i] || !selectedSizes[i]) continue;
@@ -107,7 +107,7 @@ export function calculateTotals(months, selectedTypes, selectedSizes, quantities
     if (po > 0) subtotal += po * por;
     if (circ > 0) subtotal += circ * r;
   }
-  const tax = subtotal * 0.15;
+  const tax = subtotal * taxPercentage / 100;
   const total = subtotal + tax;
   return { subtotal, tax, total };
 }

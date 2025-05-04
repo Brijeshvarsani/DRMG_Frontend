@@ -1,38 +1,46 @@
 import { generateInvoicePDF } from "../utils/pdfUtils";
 import API from "./api";
 
-// Fetch order and customer info using the orderId, then call PDF utils
+// Fetch order + customer info and rows from backend, then generate PDF
 export async function fetchOrderAndGeneratePDF(orderId) {
-  // Fetch order + customer info and rows from backend
-  const response = await API.get(`/orders/${orderId}`);
-  if (!response.ok) throw new Error("Failed to fetch order details");
+  try {
+    console.log("Fetching order details for PDF generation... " + orderId);
+    const response = await API.get("/orders/" + orderId);
 
-  const data = await response.json();
-  const { order, rows } = data;
+    console.log("Response from API:", response.data);
+    if (!response.data || !response.data.order || !response.data.rows) {
+      throw new Error("Incomplete response from server");
+    }
+    
+    // const { order, rows } = response.data;
+    const order = response.data.order[0];
+    const rows = response.data.rows;
 
-  // Re-map rows if needed to fit the structure your PDF expects
-  // For this example, we assume your DB fields match your PDF field names
-  const pdfRows = rows.map(row => ({
-    month: row.MONTH,
-    productType: row.PRODUCTTYPE,
-    adSize: row.ADSIZE,
-    deliveryType: row.DELIVERYTYPE,
-    qty: row.QTY,
-    rate: row.RATE,
-  }));
+    // Map rows for PDF
+    const pdfRows = rows.map(row => ({
+      month: row.MONTH,
+      productType: row.PRODUCTTYPE,
+      adSize: row.ADSIZE,
+      deliveryType: row.DELIVERYTYPE, // MONEY SAVER regions already substituted in backend
+      qty: row.QTY,
+      rate: row.RATE,
+    }));
 
-  // Build customer info object
-  const customer = {
-    CNAME: order.CNAME,
-    CSTREET: order.CSTREET,
-    CCITY: order.CCITY,
-    CPROVINCE: order.CPROVINCE,
-    CPOSTALCODE: order.CPOSTALCODE,
-    CEMAIL: order.CEMAIL,
-    CNUMBER: order.CNUMBER,
-    CCOMPANY: order.CCOMPANY
-  };
+    // Build customer info
+    const customer = {
+      CNAME: order.CNAME,
+      CSTREET: order.CSTREET,
+      CCITY: order.CCITY,
+      CPROVINCE: order.CPROVINCE,
+      CPOSTALCODE: order.CPOSTALCODE,
+      CEMAIL: order.CEMAIL,
+      CNUMBER: order.CNUMBER,
+      CCOMPANY: order.CCOMPANY,
+      CTAX: order.PTAX
+    };
 
-  // Now call your PDF util, passing both
-  generateInvoicePDF(pdfRows, orderId, customer);
+    generateInvoicePDF(pdfRows, order, customer);
+  } catch (error) {
+    console.error("PDF generation failed:", error);
+  }
 }

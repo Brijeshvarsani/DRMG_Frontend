@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchCustomers, fetchProvinces, createCustomer } from "../api/customer";
+import API from "../services/api"; // Adjust the import path as necessary
 
 export default function CustomerSection({
   selectedCustomerId,
@@ -7,6 +8,8 @@ export default function CustomerSection({
   customerForm,
   setCustomerForm,
   setIsNewCustomer,
+  taxPercentage,
+  setTaxPercentage,
 }) {
   const [customers, setCustomers] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -25,6 +28,22 @@ export default function CustomerSection({
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+  
+      const fetchTaxFromCustomer = async () => {
+        if (!selectedCustomerId) return;
+        try {
+          const res = await API.get(`/customers/${selectedCustomerId}`);
+          setTaxPercentage(res.data.PTAX || 8);
+        } catch (err) {
+          console.error("Failed to fetch tax rate:", err);
+          setTaxPercentage(9);
+        }
+      };
+      
+      fetchTaxFromCustomer();
+    }, [selectedCustomerId]);
 
   // Handle dropdown selection
   const handleSelectChange = (e) => {

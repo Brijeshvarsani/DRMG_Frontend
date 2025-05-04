@@ -13,6 +13,8 @@ import adRates from "../data/adRates.json"; // Assuming adRates is a JSON file
 import { calculateTotals } from "../utils/orderUtils";
 import logo from "../assets/DRMG logo.webp"; // ✅ Import your logo
 import { Link, useNavigate } from "react-router-dom";
+import { fetchOrderAndGeneratePDF } from "../services/invoiceService";
+import Header from "../components/Header";
 
 export default function EditOrder() {
   const { orderId } = useParams();
@@ -23,6 +25,7 @@ export default function EditOrder() {
   const [regions, setRegions] = useState([]);
   const [regionSelections, setRegionSelections] = useState(Array(14).fill([]));
   const [user, setUser] = useState(null);
+  const [taxPercentage, setTaxPercentage] = useState(15);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -33,17 +36,22 @@ export default function EditOrder() {
     API.get("/profile", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => setUser(res.data.user))
+      .then((res) => {
+        setUser(res.data.user) 
+        console.log("User data:", res.data.user); // Debugging line
+      }) 
       .catch(() => {
         localStorage.removeItem("token");
         navigate("/");
       });
 
     getOrder(orderId).then(data => {
-
-      const startMonth = data.rows[0]?.MONTH || "MAY 24";
+      const startMonth = data.rows[0]?.MONTH || null;
       const monthsArr = getMonthLabelsFrom(startMonth);
       setMonths(monthsArr);
+
+      // console.log("Months array:", data.row);
+
       const baseRows = groupRowsForEdit(data.rows, monthsArr);
       setFormData(
         baseRows.map(row => ({
@@ -51,13 +59,23 @@ export default function EditOrder() {
           quantity: (parseInt(row.printOnly) || 0) + (parseInt(row.circulation) || 0)
         }))
       );
-      setOrder(data.order);
+
+      setOrder(data.order[0]);
+
+      setTaxPercentage(data.order[0].PTAX || 15);
+      
       setPrintOnlyEnabled(
         baseRows.map(row => !!(parseInt(row.printOnly) > 0))
       );
-      if (data.regionSelections) {
-        const filtered = data.regionSelections.filter((_, idx) => idx % 2 === 0);
-        setRegionSelections(filtered);
+      
+      if (data.regionRows) {
+        const uniqueMonths = [...new Set(data.rows.map(row => row.MONTH))];
+        const sr = uniqueMonths.map(month => {
+          return data.regionRows
+            .filter(region => region.MONTH === month)
+            .map(region => region.REGION);
+        });
+        setRegionSelections(sr);
       }
     });
 
@@ -253,9 +271,19 @@ export default function EditOrder() {
     payload.OId = order.OID;
     payload.regionSelections = regionSelections;
     payload.months = months;
+    payload.userId = user?.id,
 
-    await saveOrderUpdate(payload);
-    alert("Order updated!");
+    console.log("Payload to be sent:", payload);
+
+    try {
+      await saveOrderUpdate(payload);
+      alert("Order updated!");
+      await fetchOrderAndGeneratePDF(payload.OId);
+      navigate("/order-list");
+    } catch (err) {
+      alert("Failed to save order");
+      console.error(err);
+    }
   };
 
   if (!order || formData.length !== months.length) return <div>Loading...</div>;
@@ -268,37 +296,13 @@ export default function EditOrder() {
     formData.map(row => row.rate),
     formData.map(row => row.printOnly),
     formData.map(row => row.printOnlyRate),
-    formData.map(row => row.circulation)
+    formData.map(row => row.circulation),
+    taxPercentage
   );  
 
   return (
     <div className="container my-2">
-
-<div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <img src={logo} alt="DRMG Logo" style={{ height: "90px" }} />
-        </div>
-        <div>
-        <h2>{user?.username}</h2>
-        </div>
-      </div>
-      <nav className="nav nav-pills d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex justify-content-between align-items-center"> 
-          <Link className="nav-link" to="/dashboard">Dashboard</Link>
-          <Link className="nav-link" to="/orders">Create Order</Link>
-        </div>
-        <div>
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/");
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+      {user && <Header user={user} /> }
 
       <h2 className="mb-4 text-center">Order No. {orderId}</h2>
 
@@ -467,7 +471,7 @@ export default function EditOrder() {
 
       <div className="text-end mb-3 me-2">
         <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-        <p><strong>Tax (15%):</strong> ${tax.toFixed(2)}</p>
+        <p><strong>Tax ({taxPercentage}%):</strong> ${tax.toFixed(2)}</p>
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
 
