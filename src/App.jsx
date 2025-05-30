@@ -6,7 +6,7 @@ import EditOrder from "./pages/EditOrder";
 import OrderList from "./components/OrderList";
 import FilteredOrderSummary from "./pages/FilteredOrderSummary";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import OrderPreview from "./components/OrderPreview";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -43,6 +43,7 @@ function App() {
             <FilteredOrderSummary />
           </ProtectedRoute>
         } />
+        <Route path="/order-preview" element={<OrderPreview />} />
       </Routes>
     </Router>
   );

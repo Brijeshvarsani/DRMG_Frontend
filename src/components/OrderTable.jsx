@@ -78,7 +78,6 @@ export default function OrderTable() {
     [selectedSizes]
   );
 
-
   const handlePrintOnlyCheckbox = (idx, checked) => {
     setPrintOnlyEnabled(enabledArr => {
       const newArr = [...enabledArr];
@@ -157,6 +156,47 @@ export default function OrderTable() {
       }
     }
   };
+
+  const handlePreview = () => {
+    if (!selectedCustomerId || selectedCustomerId === "") {
+      alert("Please select a customer before previewing the order.");
+      return;
+    }
+
+    const submissionData = generateSubmissionData(
+      months,
+      selectedTypes,
+      selectedSizes,
+      quantities,
+      printOnly,
+      circulations,
+      rates,
+      printOnlyRates
+    );
+
+    if (submissionData.length === 0) {
+      alert("At least one valid month entry is required.");
+      return;
+    }
+
+    navigate("/order-preview", {
+      state: {
+        selectedCustomerId,
+        customerForm,
+        isNewCustomer,
+        months,
+        selectedTypes,
+        selectedSizes,
+        quantities,
+        printOnly,
+        circulations,
+        rates,
+        printOnlyRates,
+        regionSelections
+      },
+    });
+  };
+
 
   const handleSubmit = async () => {
 
@@ -487,7 +527,7 @@ export default function OrderTable() {
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
       <div className="text-end mt-3">
-        <button className="btn btn-primary" onClick={handleSubmit}>Submit Order</button>
+        <button className="btn btn-primary" onClick={handlePreview}>Submit Order</button>
       </div>
     </div>
   );
