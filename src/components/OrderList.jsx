@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import logo from "../assets/DRMG logo.webp"; // ✅ Import your logo
 import { Table, Button } from "react-bootstrap";
+import Header from "./Header";
 
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -52,6 +53,7 @@ export default function OrderList() {
 
   return (
     <div className="container mt-4">
+      <Header user={user} />
       <h3 className="mb-4">Orders</h3>
       <Table striped bordered hover responsive>
         <thead>
