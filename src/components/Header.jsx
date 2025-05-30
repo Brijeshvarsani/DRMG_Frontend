@@ -22,6 +22,7 @@ export default function Header({ user }) {
             <Link className="nav-link" to="/dashboard">Dashboard</Link>
             <Link className="nav-link" to="/orders">Create Order</Link>
             <Link className="nav-link" to="/order-list">Orders List</Link>
+            <Link className="nav-link" to="/filtered-summary">Filtered Summary</Link>
         </div>
         <div>
           <button

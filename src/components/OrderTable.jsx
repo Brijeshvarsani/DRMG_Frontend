@@ -47,7 +47,7 @@ export default function OrderTable() {
   const [regions, setRegions] = useState([]);
   const [regionSelections, setRegionSelections] = useState(Array(14).fill([]));
   const [user, setUser] = useState(null);
-  const [taxPercentage, setTaxPercentage] = useState(15); // Default to 15%
+  const [taxPercentage, setTaxPercentage] = useState(14); // Default to 15%
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 

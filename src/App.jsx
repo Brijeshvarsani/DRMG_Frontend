@@ -5,6 +5,7 @@ import OrderTable from "./components/OrderTable";
 import EditOrder from "./pages/EditOrder";
 import OrderList from "./components/OrderList";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FilteredOrderSummary from "./pages/FilteredOrderSummary";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -34,6 +35,11 @@ function App() {
         <Route path="/order-list" element={
           <ProtectedRoute>
             <OrderList />
+          </ProtectedRoute>
+        } />
+        <Route path="/filtered-summary" element={ 
+          <ProtectedRoute>
+            <FilteredOrderSummary />
           </ProtectedRoute>
         } />
       </Routes>
