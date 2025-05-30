@@ -527,7 +527,7 @@ export default function OrderTable() {
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
       <div className="text-end mt-3">
-        <button className="btn btn-primary" onClick={handlePreview}>Submit Order</button>
+        <button className="btn btn-primary" onClick={handleSubmit}>Preview</button>
       </div>
     </div>
   );
