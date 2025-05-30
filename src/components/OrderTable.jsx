@@ -159,6 +159,49 @@ export default function OrderTable() {
     }
   };
 
+  const handlePreview = () => {
+    if (!selectedCustomerId || selectedCustomerId === "") {
+      alert("Please select a customer before submitting the order.");
+      return;
+    }
+
+    const submissionData = generateSubmissionData(
+      months,
+      selectedTypes,
+      selectedSizes,
+      quantities,
+      printOnly,
+      circulations,
+      rates,
+      printOnlyRates
+    );
+
+    if (submissionData.length === 0) {
+      alert("At least one valid month entry is required before submitting.");
+      return;
+    }
+
+    navigate("/order-preview", {
+      state: {
+        selectedCustomerId,
+        customerForm,
+        isNewCustomer,
+        months,
+        selectedTypes,
+        selectedSizes,
+        quantities,
+        printOnly,
+        circulations,
+        rates,
+        printOnlyRates,
+        regionSelections,
+        user,
+        taxPercentage
+      },
+    });
+  };
+
+
   const handleSubmit = async () => {
 
     if (!selectedCustomerId || selectedCustomerId === "") {
@@ -468,7 +511,7 @@ export default function OrderTable() {
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
       <div className="text-end mt-3">
-        <button className="btn btn-primary" onClick={handleSubmit}>Submit Order</button>
+        <button className="btn btn-primary" onClick={handlePreview}>Preview Order</button>
       </div>
     </div>
   );
