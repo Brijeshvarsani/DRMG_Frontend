@@ -4,7 +4,9 @@ import DashboardPage from "./pages/DashboardPage";
 import OrderTable from "./components/OrderTable";
 import EditOrder from "./pages/EditOrder";
 import OrderList from "./components/OrderList";
+import FilteredOrderSummary from "./pages/FilteredOrderSummary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OrderPreview from "./components/OrderPreview";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -36,6 +38,12 @@ function App() {
             <OrderList />
           </ProtectedRoute>
         } />
+        <Route path="/filtered-summary" element={ 
+          <ProtectedRoute>
+            <FilteredOrderSummary />
+          </ProtectedRoute>
+        } />
+        <Route path="/order-preview" element={<OrderPreview />} />
       </Routes>
     </Router>
   );

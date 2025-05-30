@@ -68,3 +68,16 @@ export async function saveOrderUpdate(payload) {
     throw new Error("Failed to update order: " + JSON.stringify(err.response?.data || err.message));
   }
 }
+
+// Fetch order summary by month and year
+export async function getOrderSummary(month, year) {
+  try {
+    const res = await API.get("/order-summary", {
+      params: { month, year },
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Order summary fetch error:", err.response?.data || err);
+    throw new Error("Failed to fetch order summary: " + JSON.stringify(err.response?.data || err.message));
+  }
+}

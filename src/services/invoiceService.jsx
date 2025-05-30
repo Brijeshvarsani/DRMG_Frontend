@@ -1,32 +1,55 @@
 import { generateInvoicePDF } from "../utils/pdfUtils";
 import API from "./api";
 
-// Fetch order + customer info and rows from backend, then generate PDF
+// Fetch order and customer info using the orderId, then call PDF utils
 export async function fetchOrderAndGeneratePDF(orderId) {
-  try {
-    console.log("Fetching order details for PDF generation... " + orderId);
-    const response = await API.get("/orders/" + orderId);
+  // Fetch order + customer info and rows from backend
+  // const response = await API.get(`/orders/${orderId}`);
+  // if (!response.ok) throw new Error("Failed to fetch order details");
 
-    console.log("Response from API:", response.data);
-    if (!response.data || !response.data.order || !response.data.rows) {
-      throw new Error("Incomplete response from server");
-    }
-    
-    // const { order, rows } = response.data;
-    const order = response.data.order[0];
-    const rows = response.data.rows;
+  // const data = await response.json();
+  // const { order, rows } = data;
 
-    // Map rows for PDF
+  // // Re-map rows if needed to fit the structure your PDF expects
+  // // For this example, we assume your DB fields match your PDF field names
+  // const pdfRows = rows.map(row => ({
+  //   month: row.MONTH,
+  //   productType: row.PRODUCTTYPE,
+  //   adSize: row.ADSIZE,
+  //   deliveryType: row.DELIVERYTYPE,
+  //   qty: row.QTY,
+  //   rate: row.RATE,
+  // }));
+
+  // // Build customer info object
+  // const customer = {
+  //   CNAME: order.CNAME,
+  //   CSTREET: order.CSTREET,
+  //   CCITY: order.CCITY,
+  //   CPROVINCE: order.CPROVINCE,
+  //   CPOSTALCODE: order.CPOSTALCODE,
+  //   CEMAIL: order.CEMAIL,
+  //   CNUMBER: order.CNUMBER,
+  //   CCOMPANY: order.CCOMPANY
+  // };
+
+  // // Now call your PDF util, passing both
+  // generateInvoicePDF(pdfRows, orderId, customer);
+
+    try {
+    const response = await API.get(`/orders/${orderId}`);
+    const data = response.data; // axios directly gives you data
+    const { order, rows } = data;
+
     const pdfRows = rows.map(row => ({
       month: row.MONTH,
       productType: row.PRODUCTTYPE,
       adSize: row.ADSIZE,
-      deliveryType: row.DELIVERYTYPE, // MONEY SAVER regions already substituted in backend
+      deliveryType: row.DELIVERYTYPE,
       qty: row.QTY,
       rate: row.RATE,
     }));
 
-    // Build customer info
     const customer = {
       CNAME: order.CNAME,
       CSTREET: order.CSTREET,
@@ -36,11 +59,13 @@ export async function fetchOrderAndGeneratePDF(orderId) {
       CEMAIL: order.CEMAIL,
       CNUMBER: order.CNUMBER,
       CCOMPANY: order.CCOMPANY,
-      CTAX: order.PTAX
     };
 
-    generateInvoicePDF(pdfRows, order, customer);
-  } catch (error) {
-    console.error("PDF generation failed:", error);
+    generateInvoicePDF(pdfRows, orderId, customer);
+
+  } catch (err) {
+    console.error("Failed to fetch order details", err);
+    throw new Error("Failed to fetch order details");
   }
+
 }

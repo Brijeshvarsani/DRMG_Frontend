@@ -16,12 +16,12 @@ import { fetchOrderAndGeneratePDF } from "../services/invoiceService";
 import API from "../services/api";
 import MoneySaverRegionTable from "./MoneySaverRegionTable";
 import CustomerSection from "./CustomerSection";
-import { useNavigate } from "react-router-dom";
-import Header from "./Header";
+import logo from "../assets/DRMG logo.webp"; // ✅ Import your logo
+import { Link, useNavigate } from "react-router-dom";
 
 export default function OrderTable() {
 
-  const [selectedCustomerId, setSelectedCustomerId] = useState(0);
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [customerForm, setCustomerForm] = useState({
         CCOMPANY: "",
@@ -47,7 +47,6 @@ export default function OrderTable() {
   const [regions, setRegions] = useState([]);
   const [regionSelections, setRegionSelections] = useState(Array(14).fill([]));
   const [user, setUser] = useState(null);
-  const [taxPercentage, setTaxPercentage] = useState(15); // Default to 15%
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -68,7 +67,7 @@ export default function OrderTable() {
       .then(res => setRegions(res.data))
       .catch(err => console.error("Failed to load regions", err));
   }, []);
-  
+
   const moneySaverFlags = useMemo(
     () => selectedTypes.map(type => type === "MONEY SAVER"),
     [selectedTypes]
@@ -78,7 +77,6 @@ export default function OrderTable() {
     () => selectedSizes.map(size => !!size),
     [selectedSizes]
   );
-
 
   const handlePrintOnlyCheckbox = (idx, checked) => {
     setPrintOnlyEnabled(enabledArr => {
@@ -159,6 +157,47 @@ export default function OrderTable() {
     }
   };
 
+  const handlePreview = () => {
+    if (!selectedCustomerId || selectedCustomerId === "") {
+      alert("Please select a customer before previewing the order.");
+      return;
+    }
+
+    const submissionData = generateSubmissionData(
+      months,
+      selectedTypes,
+      selectedSizes,
+      quantities,
+      printOnly,
+      circulations,
+      rates,
+      printOnlyRates
+    );
+
+    if (submissionData.length === 0) {
+      alert("At least one valid month entry is required.");
+      return;
+    }
+
+    navigate("/order-preview", {
+      state: {
+        selectedCustomerId,
+        customerForm,
+        isNewCustomer,
+        months,
+        selectedTypes,
+        selectedSizes,
+        quantities,
+        printOnly,
+        circulations,
+        rates,
+        printOnlyRates,
+        regionSelections
+      },
+    });
+  };
+
+
   const handleSubmit = async () => {
 
     if (!selectedCustomerId || selectedCustomerId === "") {
@@ -195,14 +234,14 @@ export default function OrderTable() {
         printOnlyRates
       ),
       regionSelections, // <--- Add this
-      months,             // <--- Needed by backend to match indices
-      userId: user?.id, // <--- Add this
+      months             // <--- Needed by backend to match indices
     };
     
+
     try {
       const result = await saveOrder(orderPayload);
-      await fetchOrderAndGeneratePDF(result.OId);
-      navigate("/order-list");
+      alert("Order saved! Order ID: " + result.OId);
+      fetchOrderAndGeneratePDF(result.OId);
     } catch (err) {
       alert("Failed to save order");
       console.error(err);
@@ -217,15 +256,37 @@ export default function OrderTable() {
     rates,
     printOnly,
     printOnlyRates,
-    circulations,
-    taxPercentage
+    circulations
   );
 
   return (
     <div className="container py-4">
-      {user && (
-        <Header user={user} />
-      )}
+
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <img src={logo} alt="DRMG Logo" style={{ height: "90px" }} />
+        </div>
+        <div>
+        <h2>{user?.username}</h2>
+        </div>
+      </div>
+      <nav className="nav nav-pills d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex justify-content-between align-items-center"> 
+          <Link className="nav-link" to="/dashboard">Dashboard</Link>
+          {/* <Link className="nav-link" to="/orders">Orders</Link> */}
+        </div>
+        <div>
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/");
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
 
       <CustomerSection
         selectedCustomerId={selectedCustomerId}
@@ -233,8 +294,6 @@ export default function OrderTable() {
         customerForm={customerForm}
         setCustomerForm={setCustomerForm}
         setIsNewCustomer={setIsNewCustomer}
-        taxPercentage={taxPercentage}
-        setTaxPercentage={setTaxPercentage}
       />
 
       <h2 className="mb-4 text-center">Monthly Order Form</h2>
@@ -464,11 +523,11 @@ export default function OrderTable() {
       </div>
       <div className="text-end mb-3 me-2">
         <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-        <p><strong>Tax ({taxPercentage})%:</strong> ${tax.toFixed(2)}</p>
+        <p><strong>Tax (14%):</strong> ${tax.toFixed(2)}</p>
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
       <div className="text-end mt-3">
-        <button className="btn btn-primary" onClick={handleSubmit}>Submit Order</button>
+        <button className="btn btn-primary" onClick={handleSubmit}>Preview</button>
       </div>
     </div>
   );
