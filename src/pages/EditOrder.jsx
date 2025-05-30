@@ -467,7 +467,7 @@ export default function EditOrder() {
 
       <div className="text-end mb-3 me-2">
         <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-        <p><strong>Tax (15%):</strong> ${tax.toFixed(2)}</p>
+        <p><strong>Tax (14%):</strong> ${tax.toFixed(2)}</p>
         <p><strong>Total:</strong> ${total.toFixed(2)}</p>
       </div>
 

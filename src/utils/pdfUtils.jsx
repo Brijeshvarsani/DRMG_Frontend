@@ -41,7 +41,7 @@ export const generateInvoicePDF = (orderRows, orderId, customer) => {
     const qty = parseInt(item.qty) || 0;
     const rate = parseFloat(item.rate) || 0;
     const amount = +(qty * rate);
-    const tax = +(amount * 0.15);
+    const tax = +(amount * 0.14);
     const total = amount + tax;
     overallSubtotal += amount;
     overallTax += tax;
@@ -70,7 +70,7 @@ export const generateInvoicePDF = (orderRows, orderId, customer) => {
       "Qty",
       "Rate",
       "Amount",
-      "Tax (15%)",
+      "Tax (14%)",
       "Total"
     ]],
     body: tableBody,

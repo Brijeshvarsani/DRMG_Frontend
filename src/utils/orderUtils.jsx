@@ -107,7 +107,7 @@ export function calculateTotals(months, selectedTypes, selectedSizes, quantities
     if (po > 0) subtotal += po * por;
     if (circ > 0) subtotal += circ * r;
   }
-  const tax = subtotal * 0.15;
+  const tax = subtotal * 0.14;
   const total = subtotal + tax;
   return { subtotal, tax, total };
 }
