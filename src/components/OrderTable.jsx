@@ -18,36 +18,38 @@ import MoneySaverRegionTable from "./MoneySaverRegionTable";
 import CustomerSection from "./CustomerSection";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
-
+import { useLocation } from "react-router-dom";
 export default function OrderTable() {
-
-  const [selectedCustomerId, setSelectedCustomerId] = useState(0);
-  const [isNewCustomer, setIsNewCustomer] = useState(false);
-  const [customerForm, setCustomerForm] = useState({
-        CCOMPANY: "",
-        CNAME: "",
-        CEMAIL: "",
-        CNUMBER: "",
-        CSTREET: "",
-        CCITY: "",
-        CPOSTALCODE: "",
-        CPROVINCE: "",
-      });
+  const { state: locationState } = useLocation();
+  
+  // Initialize state with locationState if it exists
+  const [selectedCustomerId, setSelectedCustomerId] = useState(locationState?.selectedCustomerId || 0);
+  const [isNewCustomer, setIsNewCustomer] = useState(locationState?.isNewCustomer || false);
+  const [customerForm, setCustomerForm] = useState(locationState?.customerForm || {
+    CCOMPANY: "",
+    CNAME: "",
+    CEMAIL: "",
+    CNUMBER: "",
+    CSTREET: "",
+    CCITY: "",
+    CPOSTALCODE: "",
+    CPROVINCE: "",
+  });
 
   const months = getMonthLabels();
 
-  const [selectedTypes, setSelectedTypes] = useState(Array(14).fill(""));
-  const [selectedSizes, setSelectedSizes] = useState(Array(14).fill(""));
-  const [rates, setRates] = useState(Array(14).fill(""));
-  const [quantities, setQuantities] = useState(Array(14).fill("0"));
-  const [printOnly, setPrintOnly] = useState(Array(14).fill("0"));
-  const [circulations, setCirculations] = useState(Array(14).fill("0"));
-  const [printOnlyEnabled, setPrintOnlyEnabled] = useState(Array(14).fill(false));
-  const [printOnlyRates, setPrintOnlyRates] = useState(Array(14).fill(""));
+  const [selectedTypes, setSelectedTypes] = useState(locationState?.selectedTypes || Array(14).fill(""));
+  const [selectedSizes, setSelectedSizes] = useState(locationState?.selectedSizes || Array(14).fill(""));
+  const [rates, setRates] = useState(locationState?.rates || Array(14).fill(""));
+  const [quantities, setQuantities] = useState(locationState?.quantities || Array(14).fill("0"));
+  const [printOnly, setPrintOnly] = useState(locationState?.printOnly || Array(14).fill("0"));
+  const [circulations, setCirculations] = useState(locationState?.circulations || Array(14).fill("0"));
+  const [printOnlyEnabled, setPrintOnlyEnabled] = useState(locationState?.printOnlyEnabled || Array(14).fill(false));
+  const [printOnlyRates, setPrintOnlyRates] = useState(locationState?.printOnlyRates || Array(14).fill(""));
   const [regions, setRegions] = useState([]);
-  const [regionSelections, setRegionSelections] = useState(Array(14).fill([]));
+  const [regionSelections, setRegionSelections] = useState(locationState?.regionSelections || Array(14).fill([]));
   const [user, setUser] = useState(null);
-  const [taxPercentage, setTaxPercentage] = useState(14); // Default to 15%
+  const [taxPercentage, setTaxPercentage] = useState(locationState?.taxPercentage || 14);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -78,7 +80,6 @@ export default function OrderTable() {
     () => selectedSizes.map(size => !!size),
     [selectedSizes]
   );
-
 
   const handlePrintOnlyCheckbox = (idx, checked) => {
     setPrintOnlyEnabled(enabledArr => {

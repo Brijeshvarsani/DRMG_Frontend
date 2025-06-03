@@ -95,9 +95,12 @@ export default function OrderPreview() {
       </table>
 
       <div className="d-flex justify-content-between mt-4">
-        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
-          Back to Edit
-        </button>
+      <button 
+        className="btn btn-secondary" 
+        onClick={() => navigate("/orders", { state })}
+      >
+        Back to Edit
+      </button>
         <button className="btn btn-success" onClick={handleFinalSubmit}>
           Confirm & Submit
         </button>
