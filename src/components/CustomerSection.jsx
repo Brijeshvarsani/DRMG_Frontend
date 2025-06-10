@@ -30,20 +30,34 @@ export default function CustomerSection({
   }, []);
 
   useEffect(() => {
-  
-      const fetchTaxFromCustomer = async () => {
-        if (!selectedCustomerId) return;
-        try {
-          const res = await API.get(`/customers/${selectedCustomerId}`);
-          setTaxPercentage(res.data.PTAX || 8);
-        } catch (err) {
-          console.error("Failed to fetch tax rate:", err);
-          setTaxPercentage(9);
-        }
-      };
-      
-      fetchTaxFromCustomer();
-    }, [selectedCustomerId]);
+    const fetchCustomerDetails = async () => {
+      if (!selectedCustomerId) return;
+
+      try {
+        const res = await API.get(`/customers/${selectedCustomerId}`);
+        const customer = res.data;
+
+        // Set tax and full customer form data
+        setTaxPercentage(customer.PTAX || 8);
+        setCustomerForm({
+          CCOMPANY: customer.CCOMPANY || "",
+          CNAME: customer.CNAME || "",
+          CEMAIL: customer.CEMAIL || "",
+          CNUMBER: customer.CNUMBER || "",
+          CSTREET: customer.CSTREET || "",
+          CCITY: customer.CCITY || "",
+          CPOSTALCODE: customer.CPOSTALCODE || "",
+          CPROVINCE: customer.CPROVINCE || "",
+        });
+      } catch (err) {
+        console.error("Failed to fetch customer details:", err);
+        setTaxPercentage(9);
+      }
+    };
+
+    fetchCustomerDetails();
+  }, [selectedCustomerId]);
+
 
   // Handle dropdown selection
   const handleSelectChange = (e) => {
@@ -155,8 +169,8 @@ export default function CustomerSection({
           ))}
         </select>
       </div>
-      {/* If new customer, show form */}
-      {!selectedCustomerId && (
+
+      {!selectedCustomerId ? (
         <form onSubmit={handleCreateCustomer} autoComplete="off">
           <div className="row mb-2">
             <div className="col">
@@ -282,6 +296,15 @@ export default function CustomerSection({
             Create Customer
           </button>
         </form>
+      ) : (
+        <div className="p-3 border rounded bg-light">
+          <h6 className="mb-2"><b>Selected Customer Details:</b></h6>
+          <p><b>Company:</b> {customerForm.CCOMPANY}</p>
+          <p><b>Contact:</b> {customerForm.CNAME}</p>
+          <p><b>Email:</b> {customerForm.CEMAIL}</p>
+          <p><b>Phone:</b> {customerForm.CNUMBER}</p>
+          <p><b>Address:</b> {customerForm.CSTREET}, {customerForm.CCITY}, {customerForm.CPROVINCE}, {customerForm.CPOSTALCODE}</p>
+        </div>
       )}
     </div>
   );

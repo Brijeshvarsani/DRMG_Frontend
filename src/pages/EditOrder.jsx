@@ -25,7 +25,7 @@ export default function EditOrder() {
   const [regions, setRegions] = useState([]);
   const [regionSelections, setRegionSelections] = useState(Array(14).fill([]));
   const [user, setUser] = useState(null);
-  const [taxPercentage, setTaxPercentage] = useState(15);
+  const [taxPercentage, setTaxPercentage] = useState(14);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -62,7 +62,7 @@ export default function EditOrder() {
 
       setOrder(data.order[0]);
 
-      setTaxPercentage(data.order[0].PTAX || 15);
+      setTaxPercentage(data.order[0].PTAX || 14);
       
       setPrintOnlyEnabled(
         baseRows.map(row => !!(parseInt(row.printOnly) > 0))
