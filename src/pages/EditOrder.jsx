@@ -15,6 +15,8 @@ import logo from "../assets/DRMG logo.webp"; // ✅ Import your logo
 import { Link, useNavigate } from "react-router-dom";
 import { fetchOrderAndGeneratePDF } from "../services/invoiceService";
 import Header from "../components/Header";
+import { getInsight } from "../api/order";
+import { saveInsight } from "../api/order";
 
 export default function EditOrder() {
   const { orderId } = useParams();
@@ -30,6 +32,17 @@ export default function EditOrder() {
   const [notes, setNotes] = useState("");
 
   const navigate = useNavigate();
+
+  const [drmgInsight, setDrmgInsight] = useState({
+    startDate: "",
+    endDate: "",
+    forwardCallsTo: "",
+    scanDestination: "",
+    emailResultsTo: "",
+    callTrackingType: "",    // e.g., "New,TollFree"
+    qrCodeType: "",          // e.g., "Existing"
+  });
+
 
   useEffect(() => {
 
@@ -85,6 +98,23 @@ export default function EditOrder() {
     API.get("/regions-ms")
       .then(res => setRegions(res.data))
       .catch(err => console.error("Failed to load regions", err));
+
+    // Fetch DRMG Insight
+    getInsight(orderId)
+      .then(data => {
+        setDrmgInsight({
+          start_date: data.start_date?.split("T")[0] || "",
+          end_date: data.end_date?.split("T")[0] || "",
+          forward_calls_to: data.forward_calls_to || "",
+          scan_destination: data.scan_destination || "",
+          email_results_to: data.email_results_to || "",
+          call_tracking_type: data.call_tracking_type || "",
+          qr_code_type: data.qr_code_type || ""
+        });
+      })
+      .catch(() => console.warn("⚠️ No insight found for this order (may be first-time creation)"));
+
+
   }, [orderId]);
 
   const moneySaverFlags = useMemo(
@@ -275,18 +305,29 @@ export default function EditOrder() {
     payload.regionSelections = regionSelections;
     payload.months = months;
     payload.userId = user?.id;
-    payload.notes = notes,
-    
+    payload.notes = notes;
 
     console.log("Payload to be sent:", payload);
 
+    const insightPayload = {
+      OID: order.OID,
+      start_date: drmgInsight.start_date || "",
+      end_date: drmgInsight.end_date || "",
+      call_tracking_type: drmgInsight.call_tracking_type || "",
+      forward_calls_to: drmgInsight.forward_calls_to || "",
+      qr_code_type: drmgInsight.qr_code_type || "",
+      scan_destination: drmgInsight.scan_destination || "",
+      email_results_to: drmgInsight.email_results_to || ""
+    };
+
     try {
+      await saveInsight(insightPayload);
       await saveOrderUpdate(payload);
-      alert("Order updated!");
+      alert("Order and DRMG Insight updated!");
       await fetchOrderAndGeneratePDF(payload.OId);
       navigate("/order-list");
     } catch (err) {
-      alert("Failed to save order");
+      alert("Failed to save order or DRMG Insight");
       console.error(err);
     }
   };
@@ -472,6 +513,101 @@ export default function EditOrder() {
           onRegionToggle={handleRegionToggle}
           adSizeSelectedFlags={adSizeSelectedFlags}
         />
+      </div>
+
+      <div className="card p-3 mb-4">
+        <h5 className="fw-bold mb-3">DRMG Insight</h5>
+
+        <div className="row mb-2">
+          <div className="col-md-6">
+            <label className="form-label">Start Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={drmgInsight.start_date}
+              onChange={(e) => setDrmgInsight({ ...drmgInsight, start_date: e.target.value })}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label">End Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={drmgInsight.end_date}
+              onChange={(e) => setDrmgInsight({ ...drmgInsight, end_date: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="row mb-2">
+          <div className="col-md-12">
+            <label className="fw-bold">Call Tracking</label><br />
+            {["New", "Existing", "TollFree", "Local"].map((key) => (
+              <div className="form-check form-check-inline" key={key}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={drmgInsight.call_tracking_type?.split(",").map(s => s.trim()).includes(key)}
+                  onChange={() => {
+                    const current = new Set(drmgInsight.call_tracking_type?.split(",").map(s => s.trim()).filter(Boolean));
+                    current.has(key) ? current.delete(key) : current.add(key);
+                    setDrmgInsight({ ...drmgInsight, call_tracking_type: Array.from(current).join(",") });
+                  }}
+                />
+                <label className="form-check-label">{key === "TollFree" ? "Toll Free" : key}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-2">
+          <label className="form-label">Forward Calls To</label>
+          <input
+            className="form-control"
+            value={drmgInsight.forward_calls_to}
+            onChange={(e) => setDrmgInsight({ ...drmgInsight, forward_calls_to: e.target.value })}
+          />
+        </div>
+
+        <div className="row mb-2">
+          <div className="col-md-12">
+            <label className="fw-bold">QR Code</label><br />
+            {["New", "Existing"].map((key) => (
+              <div className="form-check form-check-inline" key={key}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={drmgInsight.qr_code_type?.split(",").map(s => s.trim()).includes(key)}
+                  onChange={() => {
+                    const current = new Set(drmgInsight.qr_code_type?.split(",").map(s => s.trim()).filter(Boolean));
+                    current.has(key) ? current.delete(key) : current.add(key);
+                    setDrmgInsight({ ...drmgInsight, qr_code_type: Array.from(current).join(",") });
+                  }}
+                />
+                <label className="form-check-label">{key}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-2">
+          <label className="form-label">Scan Destination</label>
+          <input
+            className="form-control"
+            value={drmgInsight.scan_destination}
+            onChange={(e) => setDrmgInsight({ ...drmgInsight, scan_destination: e.target.value })}
+          />
+        </div>
+
+        <div className="mb-2">
+          <label className="form-label">Email Results To</label>
+          <input
+            type="email"
+            className="form-control"
+            value={drmgInsight.email_results_to}
+            onChange={(e) => setDrmgInsight({ ...drmgInsight, email_results_to: e.target.value })}
+          />
+        </div>
       </div>
 
       <div className="mb-3">

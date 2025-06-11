@@ -81,3 +81,26 @@ export async function getOrderSummary(month, year) {
     throw new Error("Failed to fetch order summary: " + JSON.stringify(err.response?.data || err.message));
   }
 }
+
+// save insight
+export async function saveInsight(insightPayload) {
+  try {
+    const res = await API.post("/insight", insightPayload);
+    return res.data;
+  } catch (err) {
+    console.error("Insight save error response:", err.response?.data || err);
+    throw new Error("Failed to save insight: " + JSON.stringify(err.response?.data || err.message));
+  }
+}
+
+// Get DRMG Insight by Order ID
+export async function getInsight(orderId) {
+  try {
+    const res = await API.get(`/insight/${orderId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    return res.data;
+  } catch (err) {
+    throw new Error("Could not load insight: " + JSON.stringify(err.response?.data || err.message));
+  }
+}
