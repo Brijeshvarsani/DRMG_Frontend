@@ -27,6 +27,8 @@ export default function EditOrder() {
   const [user, setUser] = useState(null);
   const [taxPercentage, setTaxPercentage] = useState(14);
   const token = localStorage.getItem("token");
+  const [notes, setNotes] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function EditOrder() {
       );
 
       setOrder(data.order[0]);
+      setNotes(data.order[0]?.NOTES || "");
 
       setTaxPercentage(data.order[0].PTAX || 14);
       
@@ -271,7 +274,9 @@ export default function EditOrder() {
     payload.OId = order.OID;
     payload.regionSelections = regionSelections;
     payload.months = months;
-    payload.userId = user?.id,
+    payload.userId = user?.id;
+    payload.notes = notes,
+    
 
     console.log("Payload to be sent:", payload);
 
@@ -466,6 +471,17 @@ export default function EditOrder() {
           moneySaverFlags={moneySaverFlags}
           onRegionToggle={handleRegionToggle}
           adSizeSelectedFlags={adSizeSelectedFlags}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label fw-bold">Notes</label>
+        <textarea
+          className="form-control"
+          rows="4"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Update special notes or instructions for this order..."
         />
       </div>
 
