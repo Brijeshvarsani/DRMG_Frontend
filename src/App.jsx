@@ -7,7 +7,7 @@ import OrderList from "./components/OrderList";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FilteredOrderSummary from "./pages/FilteredOrderSummary";
 import OrderPreview from "./components/OrderPreview";
-
+import PaymentInfo from "./pages/PaymentInfo";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -46,6 +46,11 @@ function App() {
         <Route path="/order-preview" element={
           <ProtectedRoute>
             <OrderPreview />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment-info" element={
+          <ProtectedRoute>
+            <PaymentInfo />
           </ProtectedRoute>
         } />
       </Routes>
