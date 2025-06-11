@@ -7,7 +7,8 @@ export function buildOrderPayload(
     printOnly,
     circulations,
     rates,
-    printOnlyRates
+    printOnlyRates,
+    notes = ""
   ) {
     const rows = [];
     months.forEach((monthLabel, idx) => {
@@ -38,7 +39,8 @@ export function buildOrderPayload(
     return {
       CId: customerId,
       ODate: new Date().toISOString().split('T')[0],
-      rows
+      rows,
+      notes
     };
   }
   

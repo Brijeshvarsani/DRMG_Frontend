@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { saveOrder } from "../api/order";
 import { buildOrderPayload } from "../services/orderService";
 import { fetchOrderAndGeneratePDF } from "../services/invoiceService";
+import { calculateTotals } from "../utils/orderUtils";
 
 export default function OrderPreview() {
   const { state } = useLocation();
@@ -23,7 +24,20 @@ export default function OrderPreview() {
     regionSelections,
     user,
     taxPercentage,
+    notes,
   } = state;
+
+  const { subtotal, tax, total } = calculateTotals(
+    months,
+    selectedTypes,
+    selectedSizes,
+    quantities,
+    rates,
+    printOnly,
+    printOnlyRates,
+    circulations,
+    taxPercentage
+  );
 
   const handleFinalSubmit = async () => {
     const payload = buildOrderPayload(
@@ -35,8 +49,10 @@ export default function OrderPreview() {
       printOnly,
       circulations,
       rates,
-      printOnlyRates
+      printOnlyRates,
+      notes
     );
+
     payload.regionSelections = regionSelections;
     payload.months = months;
     payload.userId = user?.id;
@@ -64,6 +80,13 @@ export default function OrderPreview() {
         <p><strong>Phone:</strong> {customerForm.CNUMBER}</p>
         <p><strong>Address:</strong> {customerForm.CSTREET}, {customerForm.CCITY}, {customerForm.CPROVINCE}, {customerForm.CPOSTALCODE}</p>
       </div>
+
+      {notes && (
+        <div className="card mb-3 p-3">
+          <h5>Notes</h5>
+          <p className="mb-0">{notes}</p>
+        </div>
+      )}
 
       <table className="table table-bordered small">
         <thead>
@@ -94,13 +117,20 @@ export default function OrderPreview() {
         </tbody>
       </table>
 
+      {/* ✅ Totals Section */}
+      <div className="text-end mb-4">
+        <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
+        <p><strong>Tax ({taxPercentage}%):</strong> ${tax.toFixed(2)}</p>
+        <p><strong>Total:</strong> ${total.toFixed(2)}</p>
+      </div>
+
       <div className="d-flex justify-content-between mt-4">
-      <button 
-        className="btn btn-secondary" 
-        onClick={() => navigate("/orders", { state })}
-      >
-        Back to Edit
-      </button>
+        <button 
+          className="btn btn-secondary" 
+          onClick={() => navigate("/orders", { state })}
+        >
+          Back to Edit
+        </button>
         <button className="btn btn-success" onClick={handleFinalSubmit}>
           Confirm & Submit
         </button>

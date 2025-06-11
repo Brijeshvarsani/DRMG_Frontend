@@ -50,6 +50,8 @@ export default function OrderTable() {
   const [regionSelections, setRegionSelections] = useState(locationState?.regionSelections || Array(14).fill([]));
   const [user, setUser] = useState(null);
   const [taxPercentage, setTaxPercentage] = useState(locationState?.taxPercentage || 14);
+  const [notes, setNotes] = useState(locationState?.notes || "");
+
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -197,7 +199,11 @@ export default function OrderTable() {
         printOnlyRates,
         regionSelections,
         user,
-        taxPercentage
+        taxPercentage,
+        notes,
+        subtotal,
+        tax,       
+        total
       },
     });
   };
@@ -241,6 +247,7 @@ export default function OrderTable() {
       regionSelections, // <--- Add this
       months,             // <--- Needed by backend to match indices
       userId: user?.id, // <--- Add this
+      notes,
     };
     
     try {
@@ -504,6 +511,16 @@ export default function OrderTable() {
           moneySaverFlags={moneySaverFlags}
           onRegionToggle={handleRegionToggle}
           adSizeSelectedFlags={adSizeSelectedFlags}
+        />
+      </div>
+      <div className="mb-3">
+        <label className="form-label fw-bold">Notes</label>
+        <textarea
+          className="form-control"
+          rows="4"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Enter any special notes or instructions for this order..."
         />
       </div>
       <div className="text-end mb-3 me-2">
