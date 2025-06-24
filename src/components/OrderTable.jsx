@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import adSizes from "../data/adSizes.json";
+import adSizeByType from "../data/adSizeByType.json";
 import productTypes from "../data/productTypes.json";
 import { getMonthLabels } from "../utils/dateUtils";
 import {
@@ -377,7 +378,10 @@ export default function OrderTable() {
                     className="form-select form-select-sm"
                     disabled={!selectedTypes[idx]}
                   >
-                    {adSizes.map((size, index) => (
+                    {/* {adSizes.map((size, index) => (
+                      <option key={index} value={size}>{size}</option>
+                    ))} */}
+                    {(adSizeByType[selectedTypes[idx]] || []).map((size, index) => (
                       <option key={index} value={size}>{size}</option>
                     ))}
                   </select>
