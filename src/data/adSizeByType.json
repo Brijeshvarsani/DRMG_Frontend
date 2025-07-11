@@ -1,0 +1,24 @@
+{
+  "SOLO": [
+    "",
+    "Postcard (7'' x 5'')",
+    "Deluxe Postcard (9'' x 5'')",
+    "Solo Card (11'' x 5'')",
+    "Double Solo Card (11'' x 10'')",
+    "XL Menu (11'' x 17'')"
+  ],
+  "MONEY SAVER": [
+    "",
+    "Economy (8'' x 3'')",
+    "Standard (8'' x 5'')",
+    "Flyer (8'' x 10'')",
+    "Menu (8'' x 16'')",
+    "Large Menu (8'' x 21'')"
+  ],
+  "BOTH": [
+    "",
+    "A1",
+    "A2",
+    "A3"
+  ]
+}

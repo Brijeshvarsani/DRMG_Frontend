@@ -18,6 +18,7 @@ import MoneySaverRegionTable from "./MoneySaverRegionTable";
 import CustomerSection from "./CustomerSection";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
+import adSizeByType from "../data/adSizeByType.json";
 import { useLocation } from "react-router-dom";
 export default function OrderTable() {
   const { state: locationState } = useLocation();
@@ -347,7 +348,10 @@ export default function OrderTable() {
                     className="form-select form-select-sm"
                     disabled={!selectedTypes[idx]}
                   >
-                    {adSizes.map((size, index) => (
+                    {/* {adSizes.map((size, index) => (
+                      <option key={index} value={size}>{size}</option>
+                    ))} */}
+                    {(adSizeByType[selectedTypes[idx]] || []).map((size, index) => (
                       <option key={index} value={size}>{size}</option>
                     ))}
                   </select>
